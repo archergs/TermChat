@@ -1,29 +1,50 @@
 import socket
+import this
+import time
 
 host = 'localhost'
-port = 5001
+port = 6000
+chatname = ""
 
 
-def startChat(chatCode):
+def startChat(ip):
 
-    s = socket.socket(socket.AF_INET,
-                      socket.SOCK_STREAM)
+    chatname = input("Enter your chatname: ")
 
-    s.connect(('127.0.0.1', port))
+    sock = socket.socket(socket.AF_INET,
+                         socket.SOCK_STREAM)
 
-    s.send(str.encode(chatCode))
+    try:
 
-    msg = s.recv(1024)
+        sock.connect((ip, port))
+        sock.send(str.encode(ip))
 
-    while msg:
-        receiveStr = msg.decode()
+        msg = sock.recv(1024)
 
-        if receiveStr == "exitnow":
-            break
+        while msg:
+            receiveStr = msg.decode()
 
-        print('Received:' + receiveStr)
-        response = str.encode(input("Enter response: "))
-        s.send(response)
-        msg = s.recv(1024)
+            if "exitnow" in receiveStr:
+                sock.close()
+                break
 
-    s.close()
+            print(receiveStr)
+            response = input("Enter response: ")
+            sock.send(str.encode(chatname + ": " + response))
+            msg = sock.recv(1024)
+
+        sock.close()
+
+    except ConnectionRefusedError:
+        print("Connection refused")
+        time.sleep(1)
+        # return to main menu
+
+
+def test_ip(sock, ip):
+    try:
+        sock.connect((ip, port))
+        sock.close()
+        return True
+    except ConnectionRefusedError:
+        return False

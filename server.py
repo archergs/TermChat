@@ -1,41 +1,49 @@
 import socket
-import random
 
-host = 'localhost'
-port = 5001
+port = 6000
+chatname = ""
 
 
 def createServer():
 
-    connectCode = str(random.randint(10000, 99999))
-    print("Use " + connectCode + " to connect to chat")
+    chatname = input("Enter your chatname: ")
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Create the socket, for use on the local network
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    s.bind(('', port))
+    hostname = socket.gethostname()
+    this_ip = socket.gethostbyname(hostname)
+    print("Enter " + this_ip + " to connect to chat")
 
-    s.listen(1)
+    sock.bind(('', port))
 
-    c, addr = s.accept()
+    # only listen for one connection
+    sock.listen(1)
+
+    # accept a connection from the client
+    connection, addr = sock.accept()
 
     print("CONNECTION FROM:", str(addr))
 
-    receive = c.recv(1024)
-    
-    if receive.decode() == connectCode:
-        c.send(b"Chat connected")
+    receive = connection.recv(1024)
 
-        receive = c.recv(1024)
+    connection.send(b"Chat connected")
 
-        while receive:
-            receiveStr = receive.decode()
+    # now we can receive further msgs from the client
+    receive = connection.recv(1024)
 
-            if receiveStr == "exitnow":
-                break
+    while receive:
+        receiveStr = receive.decode()
 
-            print('Received:' + receiveStr)
-            response = str.encode(input("Enter response: "))
-            c.send(response)
-            receive = c.recv(1024)
+        # if the msg "exitnow" is received, close the connection
+        if "exitnow" in receiveStr:
+            connection.close()
+            break
 
-    c.close()
+        print(receiveStr)
+        response = input("Enter response: ")
+        connection.send(str.encode(chatname + ": " + response))
+        receive = connection.recv(1024)
+
+    connection.close()
