@@ -1,22 +1,41 @@
 import socket
+import random
 
 host = 'localhost'
 port = 5001
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-s.bind(('', port))
+def createServer():
 
-s.listen(1)
+    connectCode = str(random.randint(10000, 99999))
+    print("Use " + connectCode + " to connect to chat")
 
-c, addr = s.accept()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-print("CONNECTION FROM:", str(addr))
+    s.bind(('', port))
 
-c.send(b"Hello")
+    s.listen(1)
 
-msg = "Cya"
+    c, addr = s.accept()
 
-c.send(msg.encode())
+    print("CONNECTION FROM:", str(addr))
 
-c.close()
+    receive = c.recv(1024)
+    
+    if receive.decode() == connectCode:
+        c.send(b"Chat connected")
+
+        receive = c.recv(1024)
+
+        while receive:
+            receiveStr = receive.decode()
+
+            if receiveStr == "exitnow":
+                break
+
+            print('Received:' + receiveStr)
+            response = str.encode(input("Enter response: "))
+            c.send(response)
+            receive = c.recv(1024)
+
+    c.close()

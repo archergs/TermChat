@@ -1,5 +1,7 @@
 import socket
 import os
+from server import *
+from client import *
 
 (width, height) = os.get_terminal_size()
 
@@ -13,8 +15,10 @@ def main():
 
     if(startChoice == 'h'):
         print("Starting server...")
+        createServer()
     elif(startChoice == 'c'):
-        code = input("Enter the code to enter a chat: ")
+        code = input("Enter the 5-digit code to enter a chat: ")
+        startChat(code)
     else:
         print("invalid input")
 
