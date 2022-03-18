@@ -2,7 +2,6 @@ import socket
 import this
 import time
 
-host = 'localhost'
 port = 6000
 chatname = ""
 

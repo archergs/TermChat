@@ -14,7 +14,7 @@ def createServer():
 
     hostname = socket.gethostname()
     this_ip = socket.gethostbyname(hostname)
-    print("Enter " + this_ip + " to connect to chat")
+    print("Tell the client to enter " + this_ip + " to connect to chat")
 
     sock.bind(('', port))
 
